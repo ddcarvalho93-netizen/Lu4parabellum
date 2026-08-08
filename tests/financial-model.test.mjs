@@ -7,6 +7,7 @@ import {
   crystalLedger,
   cycleFund,
   initialData,
+  parseAdenaInput,
   recipientBalance,
   validateData,
 } from "../app/lib/model.ts";
@@ -33,6 +34,16 @@ test("tracks contributions, delivery debt and available group funds", () => {
   cycle.recipients[0].received = true;
   assert.equal(recipientBalance(cycle.recipients[0], cycle.value), 78_000);
   assert.equal(cycleFund(cycle), 78_000);
+});
+
+test("accepts Lineage Adena shorthand and formatted amounts", () => {
+  assert.equal(parseAdenaInput("50k"), 50_000);
+  assert.equal(parseAdenaInput("500K"), 500_000);
+  assert.equal(parseAdenaInput("1kk"), 1_000_000);
+  assert.equal(parseAdenaInput("1,5kk"), 1_500_000);
+  assert.equal(parseAdenaInput("500.000"), 500_000);
+  assert.equal(parseAdenaInput("1.000.000"), 1_000_000);
+  assert.ok(Number.isNaN(parseAdenaInput("50 moedas")));
 });
 
 test("offsets simultaneous crystal keepers while preserving a zero-sum ledger", () => {

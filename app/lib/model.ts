@@ -28,6 +28,24 @@ export function normalizeInitialItem(data: AppData): AppData {
 }
 
 export function adena(n: number) { return new Intl.NumberFormat("pt-BR").format(Math.round(n)); }
+export function parseAdenaInput(value: unknown) {
+  const raw = String(value ?? "").trim().toLowerCase().replace(/\s+/g, "");
+  const suffix = raw.endsWith("kk") ? "kk" : raw.endsWith("k") ? "k" : "";
+  const numberPart = suffix ? raw.slice(0, -suffix.length) : raw;
+  if (!numberPart || !/^\d+(?:[.,]\d+)*$/.test(numberPart)) return Number.NaN;
+
+  let base: number;
+  if (!suffix) {
+    base = Number(numberPart.replace(/[.,]/g, ""));
+  } else if (/^\d{1,3}(?:[.,]\d{3})+$/.test(numberPart)) {
+    base = Number(numberPart.replace(/[.,]/g, ""));
+  } else {
+    base = Number(numberPart.replace(",", "."));
+  }
+
+  const amount = Math.round(base * (suffix === "kk" ? 1_000_000 : suffix === "k" ? 1_000 : 1));
+  return Number.isSafeInteger(amount) && amount > 0 ? amount : Number.NaN;
+}
 export function contributionTotal(r: GearRecipient) { return r.contributions.reduce((s, c) => s + c.amount, 0); }
 export function recipientBalance(r: GearRecipient, value: number) { return contributionTotal(r) - (r.received ? value : 0); }
 export function cycleFund(c: GearCycle) { return c.recipients.reduce((s, r) => s + contributionTotal(r), 0) - c.recipients.filter(r => r.received).length * c.value; }

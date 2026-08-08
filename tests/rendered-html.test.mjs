@@ -81,3 +81,18 @@ test("ships the class-themed crystal vault and complete movement feed", async ()
   assert.match(theme, /\.crystal-content \.ledger-card\.tyrant/);
   assert.match(theme, /@media\(max-width:480px\).*\.crystal-content \.ledger/s);
 });
+
+test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", async () => {
+  const [dashboard, theme] = await Promise.all([
+    readFile(new URL("../app/Dashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/theme.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(dashboard, /function AdenaInput/);
+  assert.match(dashboard, /50k.*100k.*250k.*500k.*1kk/);
+  assert.match(dashboard, /parseAdenaInput\(fd\.get\("amount"\)\)/);
+  assert.match(dashboard, /adminSection==="adena"/);
+  assert.match(dashboard, /adminSection==="crystal"/);
+  assert.match(theme, /\.adena-quick/);
+  assert.match(theme, /\.admin-switch/);
+});
