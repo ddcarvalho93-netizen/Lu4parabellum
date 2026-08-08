@@ -2,6 +2,8 @@
 
 Aplicativo público de prestação de contas para a CP ParabelluM, com edição exclusiva do proprietário.
 
+Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Tank Dark Elf)** e **Doidinha (Gladiadora humana)**. A identidade visual usa o emblema oficial do grupo e uma arte original dessa formação.
+
 ## O que controla
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
