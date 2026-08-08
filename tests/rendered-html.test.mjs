@@ -1,11 +1,6 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import test from "node:test";
-
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
-const templateRoot = new URL("../", import.meta.url);
-const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
 
 async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -13,79 +8,76 @@ async function render() {
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
+    new Request("http://localhost/", { headers: { accept: "text/html" } }),
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
   );
 }
 
-test("server-renders the starter loading skeleton", async () => {
+test("server-renders the complete public ParabelluM dashboard", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
-  assert.match(html, /<title>Your site is taking shape<\/title>/i);
-  assert.match(html, /Building your site/);
-  assert.match(html, /Your site is taking shape/);
-  assert.match(
-    html,
-    /Your first version will appear here automatically when it’s ready\./,
-  );
-  assert.doesNotMatch(html, /Codex/);
-  assert.match(html, /react-loading-skeleton/);
-  assert.match(html, /role="status"/);
+  assert.match(html, /<title>ParabelluM • Controle da CP<\/title>/i);
+  assert.match(html, /Top Joias D/);
+  assert.match(html, /522\.000/);
+  assert.match(html, /3 TYRANTS/);
+  assert.match(html, /Tank Dark Elf/);
+  assert.match(html, /Gladiator/);
+  assert.match(html, /Dados públicos em modo somente leitura/);
+  assert.match(html, /parabellum-emblem\.png/);
+  assert.match(html, /parabellum-party-v2\.png/);
+  assert.match(html, /Dual Blunt/);
+
+  for (const player of ["Ardranes", "Doidinha", "xFonseca", "Sooul", "DeusCriolo"]) {
+    assert.match(html, new RegExp(`>${player}<`));
+  }
+
+  assert.doesNotMatch(html, /codex-preview|Your site is taking shape|Building your site/i);
 });
 
-test("keeps the loading skeleton scoped and disposable", async () => {
-  const [preview, css, page, layout, packageJson, files] = await Promise.all([
-    readFile(new URL("SkeletonPreview.tsx", previewRoot), "utf8"),
-    readFile(new URL("preview.css", previewRoot), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-    readdir(previewRoot),
+test("ships the final brand assets and removes the disposable starter", async () => {
+  const [emblem, party, social] = await Promise.all([
+    stat(new URL("../public/parabellum-emblem.png", import.meta.url)),
+    stat(new URL("../public/parabellum-party-v2.png", import.meta.url)),
+    stat(new URL("../public/og.png", import.meta.url)),
   ]);
 
-  assert.deepEqual(files.sort(), ["SkeletonPreview.tsx", "preview.css"]);
-  assert.match(preview, /from "react-loading-skeleton"/);
-  assert.match(preview, /baseColor="#eceae7"/);
-  assert.match(preview, /highlightColor="#f9f8f6"/);
-  assert.match(preview, /duration=\{2\.8\}/);
-  assert.match(preview, /sites-skeleton-search-placeholder/);
-  assert.match(packageJson, /"react-loading-skeleton": "3\.5\.0"/);
+  assert.ok(emblem.size > 10_000);
+  assert.ok(party.size > 100_000);
+  assert.ok(social.size > 100_000);
+  assert.deepEqual(await readdir(new URL("../app/_sites-preview", import.meta.url)), []);
+});
 
-  const shellIndex = preview.indexOf('className="sites-skeleton-shell"');
-  const statusIndex = preview.indexOf('className="sites-skeleton-status"');
-  assert.ok(shellIndex >= 0 && statusIndex > shellIndex);
-  assert.match(css, /position:\s*fixed/);
-  assert.match(css, /inset:\s*0/);
-  assert.match(css, /opacity:\s*0\.52/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(css, /#020617|canvas|pets|progress/i);
-  assert.doesNotMatch(
-    preview,
-    /loading-spinner|status-mark|status-progress|canvas|cookie|random/i,
-  );
+test("keeps recipient ordering owner-editable and protects server writes", async () => {
+  const [dashboard, route] = await Promise.all([
+    readFile(new URL("../app/Dashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8"),
+  ]);
 
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /"codex-preview": "development"/);
-  assert.match(page, /<SkeletonPreview \/>/);
-  assert.match(layout, /title:\s*"Starter Project"/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(css, /(^|\s)(html|body)\s*\{/m);
+  assert.match(dashboard, /function reorderRecipient/);
+  assert.match(dashboard, /draggable=\{canDrag\}/);
+  assert.match(dashboard, /Jogadores já equipados ficam travados/);
+  assert.match(route, /if \(!\(await isAdmin\(\)\) \|\| !user\)/);
+  assert.match(route, /status: 403/);
+  assert.match(route, /status: 409/);
+  assert.match(route, /validateData\(body\.data\)/);
+});
 
-  await assert.rejects(
-    access(new URL("public/_sites-preview", templateRoot)),
-  );
+test("ships the class-themed crystal vault and complete movement feed", async () => {
+  const [dashboard, theme] = await Promise.all([
+    readFile(new URL("../app/Dashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/theme.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(dashboard, /COFRE DE CRISTAIS D/);
+  assert.match(dashboard, /SALDOS DA FORMAÇÃO/);
+  assert.match(dashboard, /PLAYER_META\[p\]/);
+  assert.match(dashboard, /data\.crystalPayments\.map/);
+  assert.match(dashboard, /REGRA PARABELLUM/);
+  assert.match(theme, /\.crystal-vault/);
+  assert.match(theme, /\.crystal-content \.ledger-card\.tyrant/);
+  assert.match(theme, /@media\(max-width:480px\).*\.crystal-content \.ledger/s);
 });
