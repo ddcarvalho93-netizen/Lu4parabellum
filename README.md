@@ -8,6 +8,7 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
 - **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
+- **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda e pode ser quitada diretamente no cartão de cada jogador.
 - **Auditoria:** cada alteração salva autor, data, ação, resumo e snapshot completo.
 
 ## Modelo de dados
@@ -46,3 +47,4 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 6. Registre drops cristalizados ou escolha quem manteve o item.
 7. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
 8. Na tela **Cristais & Drops**, cada cartão positivo mostra ao Admin o botão **Confirmar entrega**. Um clique registra a entrega total, zera o “A receber” e grava a operação no histórico; não existe lançamento parcial.
+9. Para itens vendidos, crie o anúncio em **Colocar item na loja**. Ajuste o preço no cartão enquanto necessário e clique **Confirmar venda** somente quando a loja vender; o total é então dividido entre os cinco e a entrega da Adena também é confirmada pelo cartão de cada jogador.

@@ -6,6 +6,7 @@ import {
   contributionTotal,
   crystalLedger,
   cycleFund,
+  dropAdenaLedger,
   initialData,
   parseAdenaInput,
   recipientBalance,
@@ -121,6 +122,44 @@ test("allows one-click full settlement when a five-way split has a fraction", ()
   });
   assert.equal(crystalLedger(data).Doidinha, 0);
   assert.deepEqual(validateData(data), []);
+});
+
+test("lists a drop without dividing Adena, then splits only after sale confirmation", () => {
+  const data = clone(initialData);
+  data.dropSales.push({
+    id: "s1", at: "2026-08-08", item: "Enchant Weapon D", quantity: 2,
+    unitPrice: 338_000, status: "listed", note: "Loja aberta",
+  });
+
+  assert.deepEqual(dropAdenaLedger(data), {
+    Ardranes: 0, Doidinha: 0, xFonseca: 0, Sooul: 0, DeusCriolo: 0,
+  });
+
+  data.dropSales[0].unitPrice = 340_000;
+  assert.equal(dropAdenaLedger(data).Ardranes, 0);
+
+  data.dropSales[0].status = "sold";
+  data.dropSales[0].soldAt = "2026-08-09";
+  assert.deepEqual(dropAdenaLedger(data), {
+    Ardranes: 136_000, Doidinha: 136_000, xFonseca: 136_000, Sooul: 136_000, DeusCriolo: 136_000,
+  });
+
+  data.dropAdenaPayments.push({
+    id: "ap1", at: "2026-08-09", player: "Sooul", adena: 136_000, note: "Quitação total",
+  });
+  assert.equal(dropAdenaLedger(data).Sooul, 0);
+  assert.deepEqual(validateData(data), []);
+});
+
+test("preserves every Adena and rotates indivisible sale remainders fairly", () => {
+  const data = clone(initialData);
+  data.dropSales.push(
+    { id: "s1", at: "2026-08-08", item: "Sale A", quantity: 1, unitPrice: 101, status: "sold", soldAt: "2026-08-08", note: "" },
+    { id: "s2", at: "2026-08-09", item: "Sale B", quantity: 1, unitPrice: 102, status: "sold", soldAt: "2026-08-09", note: "" },
+  );
+  const ledger = dropAdenaLedger(data);
+  assert.equal(Object.values(ledger).reduce((sum, value) => sum + value, 0), 203);
+  assert.ok(Math.max(...Object.values(ledger)) - Math.min(...Object.values(ledger)) <= 1);
 });
 
 test("rejects inconsistent recipient order and invalid financial values", () => {

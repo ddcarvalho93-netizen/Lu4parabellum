@@ -97,7 +97,14 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /Confirmar entrega/);
   assert.match(dashboard, /balance>\.05/);
   assert.doesNotMatch(dashboard, /Entregar cristais a jogador/);
+  assert.match(dashboard, /Loja e divisão da CP/);
+  assert.match(dashboard, /Colocar item na loja/);
+  assert.match(dashboard, /Atualizar preço/);
+  assert.match(dashboard, /Confirmar venda/);
+  assert.match(dashboard, /deliverDropAdena/);
   assert.match(theme, /\.adena-quick/);
   assert.match(theme, /\.admin-switch/);
   assert.match(theme, /\.crystal-settle/);
+  assert.match(theme, /\.loot-sales/);
+  assert.match(theme, /\.shop-actions/);
 });

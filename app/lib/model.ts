@@ -5,7 +5,9 @@ export type GearRecipient = { player: Player; received: boolean; receivedAt?: st
 export type GearCycle = { id: string; item: string; value: number; status: "active" | "complete"; recipients: GearRecipient[] };
 export type DropEvent = { id: string; at: string; item: string; crystals: number; keeper: Player | null; note: string };
 export type CrystalPayment = { id: string; at: string; crystals: number; note: string; player?: Player };
-export type AppData = { cp: string; players: readonly Player[]; cycles: GearCycle[]; drops: DropEvent[]; crystalPayments: CrystalPayment[] };
+export type DropSale = { id: string; at: string; item: string; quantity: number; unitPrice: number; status: "listed" | "sold"; soldAt?: string; note: string };
+export type DropAdenaPayment = { id: string; at: string; player: Player; adena: number; note: string };
+export type AppData = { cp: string; players: readonly Player[]; cycles: GearCycle[]; drops: DropEvent[]; crystalPayments: CrystalPayment[]; dropSales?: DropSale[]; dropAdenaPayments?: DropAdenaPayment[] };
 
 export const initialData: AppData = {
   cp: "ParabelluM", players: PLAYERS,
@@ -13,7 +15,7 @@ export const initialData: AppData = {
     id: "cycle-1", item: "Top Joias D", value: 522000, status: "active",
     recipients: PLAYERS.map((player) => ({ player, received: false, contributions: [] })),
   }],
-  drops: [], crystalPayments: [],
+  drops: [], crystalPayments: [], dropSales: [], dropAdenaPayments: [],
 };
 
 export function normalizeInitialItem(data: AppData): AppData {
@@ -98,6 +100,21 @@ export function crystalLedger(data: AppData) {
   return balance;
 }
 
+export function dropAdenaLedger(data: AppData) {
+  const balance = Object.fromEntries(PLAYERS.map(p => [p, 0])) as Record<Player, number>;
+  (data.dropSales ?? []).filter(sale => sale.status === "sold").forEach((sale, saleIndex) => {
+    const total = sale.quantity * sale.unitPrice;
+    const share = Math.floor(total / PLAYERS.length);
+    const remainder = total % PLAYERS.length;
+    PLAYERS.forEach((player, playerIndex) => {
+      const rotatedIndex = (playerIndex - saleIndex + PLAYERS.length) % PLAYERS.length;
+      balance[player] += share + (rotatedIndex < remainder ? 1 : 0);
+    });
+  });
+  for (const payment of data.dropAdenaPayments ?? []) balance[payment.player] -= payment.adena;
+  return balance;
+}
+
 export function validateData(data: AppData): string[] {
   const errors: string[] = [];
   if (!data || data.cp !== "ParabelluM") errors.push("Identificação da CP inválida.");
@@ -123,6 +140,16 @@ export function validateData(data: AppData): string[] {
       if (p.crystals > before[p.player] + 0.0001) errors.push(`Entrega maior que o saldo a receber de ${p.player}.`);
     }
     previousPayments.push(p);
+  });
+  data.dropSales?.forEach(s => {
+    if (!s.item.trim() || !Number.isSafeInteger(s.quantity) || s.quantity <= 0 || !Number.isSafeInteger(s.unitPrice) || s.unitPrice <= 0 || !s.at || !["listed", "sold"].includes(s.status) || (s.status === "sold" && !s.soldAt)) errors.push("Venda de drop com dados inválidos.");
+  });
+  const previousAdenaPayments: DropAdenaPayment[] = [];
+  data.dropAdenaPayments?.forEach(p => {
+    if (!PLAYERS.includes(p.player) || !Number.isSafeInteger(p.adena) || p.adena <= 0 || !p.at) errors.push("Entrega de Adena de drop inválida.");
+    const before = dropAdenaLedger({...data, dropAdenaPayments: previousAdenaPayments});
+    if (p.adena > before[p.player]) errors.push(`Entrega maior que a Adena a receber de ${p.player}.`);
+    previousAdenaPayments.push(p);
   });
   return errors;
 }
