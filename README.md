@@ -38,6 +38,7 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 1. Entre pelo botão **Admin**.
 2. Crie o item e informe seu valor por jogador.
 3. Registre cada contribuição com data e observação.
-4. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
-5. Registre drops cristalizados ou escolha quem manteve o item.
-6. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
+4. Reorganize os jogadores pendentes em **Ordem de recebimento** quando necessário; jogadores já equipados ficam travados para preservar o histórico.
+5. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
+6. Registre drops cristalizados ou escolha quem manteve o item.
+7. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
