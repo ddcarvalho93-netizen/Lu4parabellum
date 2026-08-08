@@ -116,7 +116,7 @@ export function validateData(data: AppData): string[] {
   data.drops?.forEach(d => { if (!d.item.trim() || !Number.isSafeInteger(d.crystals) || d.crystals <= 0) errors.push("Drop com dados inválidos."); });
   const previousPayments: CrystalPayment[] = [];
   data.crystalPayments?.forEach(p => {
-    if (!Number.isSafeInteger(p.crystals) || p.crystals <= 0 || !p.at) errors.push("Distribuição de cristais inválida.");
+    if (!Number.isFinite(p.crystals) || p.crystals <= 0 || (!p.player && !Number.isSafeInteger(p.crystals)) || !p.at) errors.push("Distribuição de cristais inválida.");
     if (p.player && !PLAYERS.includes(p.player)) errors.push("Jogador inválido na entrega de cristais.");
     if (p.player) {
       const before = crystalLedger({...data, crystalPayments: previousPayments});

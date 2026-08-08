@@ -108,6 +108,21 @@ test("rejects a crystal delivery above the selected player's receivable", () => 
   assert.match(validateData(data).join(" "), /Entrega maior que o saldo a receber de Doidinha/);
 });
 
+test("allows one-click full settlement when a five-way split has a fraction", () => {
+  const data = clone(initialData);
+  data.drops.push({
+    id: "d1", at: "2026-08-08", item: "Odd crystal value", crystals: 101, keeper: "Ardranes", note: "",
+  });
+  const due = crystalLedger(data).Doidinha;
+  assert.equal(due, 20.2);
+
+  data.crystalPayments.push({
+    id: "p1", at: "2026-08-09", player: "Doidinha", crystals: due, note: "Quitação total",
+  });
+  assert.equal(crystalLedger(data).Doidinha, 0);
+  assert.deepEqual(validateData(data), []);
+});
+
 test("rejects inconsistent recipient order and invalid financial values", () => {
   const data = clone(initialData);
   data.cycles[0].recipients[1].received = true;

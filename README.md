@@ -45,4 +45,4 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 5. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
 6. Registre drops cristalizados ou escolha quem manteve o item.
 7. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
-8. Em **Entregar cristais a jogador**, escolha quem recebeu e a quantidade entregue; o sistema impede valores acima do saldo e abate imediatamente o “A receber”.
+8. Na tela **Cristais & Drops**, cada cartão positivo mostra ao Admin o botão **Confirmar entrega**. Um clique registra a entrega total, zera o “A receber” e grava a operação no histórico; não existe lançamento parcial.
