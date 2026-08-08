@@ -4,7 +4,7 @@ export type Contribution = { id: string; player: Player; amount: number; at: str
 export type GearRecipient = { player: Player; received: boolean; receivedAt?: string; contributions: Contribution[] };
 export type GearCycle = { id: string; item: string; value: number; status: "active" | "complete"; recipients: GearRecipient[] };
 export type DropEvent = { id: string; at: string; item: string; crystals: number; keeper: Player | null; note: string };
-export type CrystalPayment = { id: string; at: string; crystals: number; note: string };
+export type CrystalPayment = { id: string; at: string; crystals: number; note: string; player?: Player };
 export type AppData = { cp: string; players: readonly Player[]; cycles: GearCycle[]; drops: DropEvent[]; crystalPayments: CrystalPayment[] };
 
 export const initialData: AppData = {
@@ -64,6 +64,22 @@ export function crystalLedger(data: AppData) {
     }
   }
   for (const payment of data.crystalPayments) {
+    if (payment.player) {
+      const paid = Math.min(payment.crystals, Math.max(0, balance[payment.player]));
+      balance[payment.player] -= paid;
+
+      // A physical delivery settles the selected creditor and relieves active
+      // crystal debts proportionally. Any excess came from the shared crystal
+      // pool and therefore only reduces the group's outstanding inventory.
+      const debtors = PLAYERS.filter(p => balance[p] < -0.0001);
+      const totalDebt = debtors.reduce((sum, p) => sum - balance[p], 0);
+      const debtRelief = Math.min(paid, totalDebt);
+      if (debtRelief > 0) {
+        debtors.forEach(p => { balance[p] += debtRelief * ((-balance[p]) / totalDebt); });
+      }
+      continue;
+    }
+
     // Every new batch gives each member a theoretical 1/5 share. Negative
     // balances absorb that share first; the physical crystals then go to the
     // positive balances, preserving a zero-sum ledger.
@@ -98,6 +114,15 @@ export function validateData(data: AppData): string[] {
     if (c.recipients.some((r, ix) => r.received && ix > next && next >= 0)) errors.push(`Ordem de recebimento quebrada em ${c.item}.`);
   });
   data.drops?.forEach(d => { if (!d.item.trim() || !Number.isSafeInteger(d.crystals) || d.crystals <= 0) errors.push("Drop com dados inválidos."); });
-  data.crystalPayments?.forEach(p => { if (!Number.isSafeInteger(p.crystals) || p.crystals <= 0) errors.push("Distribuição de cristais inválida."); });
+  const previousPayments: CrystalPayment[] = [];
+  data.crystalPayments?.forEach(p => {
+    if (!Number.isSafeInteger(p.crystals) || p.crystals <= 0 || !p.at) errors.push("Distribuição de cristais inválida.");
+    if (p.player && !PLAYERS.includes(p.player)) errors.push("Jogador inválido na entrega de cristais.");
+    if (p.player) {
+      const before = crystalLedger({...data, crystalPayments: previousPayments});
+      if (p.crystals > before[p.player] + 0.0001) errors.push(`Entrega maior que o saldo a receber de ${p.player}.`);
+    }
+    previousPayments.push(p);
+  });
   return errors;
 }

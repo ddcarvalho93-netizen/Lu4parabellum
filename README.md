@@ -7,7 +7,7 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 ## O que controla
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
-- **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática e uma linha do tempo conjunta de drops e distribuições.
+- **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
 - **Auditoria:** cada alteração salva autor, data, ação, resumo e snapshot completo.
 
 ## Modelo de dados
@@ -45,3 +45,4 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 5. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
 6. Registre drops cristalizados ou escolha quem manteve o item.
 7. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
+8. Em **Entregar cristais a jogador**, escolha quem recebeu e a quantidade entregue; o sistema impede valores acima do saldo e abate imediatamente o “A receber”.

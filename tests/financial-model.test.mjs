@@ -71,6 +71,43 @@ test("offsets simultaneous crystal keepers while preserving a zero-sum ledger", 
   assert.ok(after.Doidinha < before.Doidinha);
 });
 
+test("records a player crystal delivery and clears only the delivered receivable", () => {
+  const data = clone(initialData);
+  data.drops.push({
+    id: "d1", at: "2026-08-08", item: "Useful drop", crystals: 100, keeper: "Ardranes", note: "",
+  });
+
+  assert.deepEqual(crystalLedger(data), {
+    Ardranes: -80,
+    Doidinha: 20,
+    xFonseca: 20,
+    Sooul: 20,
+    DeusCriolo: 20,
+  });
+
+  data.crystalPayments.push({
+    id: "p1", at: "2026-08-09", player: "Doidinha", crystals: 20, note: "Entregue no trade",
+  });
+  const after = crystalLedger(data);
+  assert.equal(after.Doidinha, 0);
+  assert.equal(after.Ardranes, -60);
+  assert.equal(after.xFonseca, 20);
+  assert.ok(Math.abs(Object.values(after).reduce((sum, value) => sum + value, 0)) < 0.0001);
+  assert.deepEqual(validateData(data), []);
+});
+
+test("rejects a crystal delivery above the selected player's receivable", () => {
+  const data = clone(initialData);
+  data.drops.push({
+    id: "d1", at: "2026-08-08", item: "Useful drop", crystals: 100, keeper: "Ardranes", note: "",
+  });
+  data.crystalPayments.push({
+    id: "p1", at: "2026-08-09", player: "Doidinha", crystals: 21, note: "",
+  });
+
+  assert.match(validateData(data).join(" "), /Entrega maior que o saldo a receber de Doidinha/);
+});
+
 test("rejects inconsistent recipient order and invalid financial values", () => {
   const data = clone(initialData);
   data.cycles[0].recipients[1].received = true;

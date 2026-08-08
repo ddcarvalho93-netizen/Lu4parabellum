@@ -93,6 +93,9 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /parseAdenaInput\(fd\.get\("amount"\)\)/);
   assert.match(dashboard, /adminSection==="adena"/);
   assert.match(dashboard, /adminSection==="crystal"/);
+  assert.match(dashboard, /Entregar cristais a jogador/);
+  assert.match(dashboard, /saldo restante/);
+  assert.match(dashboard, /crystalCreditors\.map/);
   assert.match(theme, /\.adena-quick/);
   assert.match(theme, /\.admin-switch/);
 });
