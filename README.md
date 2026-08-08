@@ -1,0 +1,41 @@
+# ParabelluM — Controle da CP LU4
+
+Aplicativo público de prestação de contas para a CP ParabelluM, com edição exclusiva do proprietário.
+
+## O que controla
+
+- **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
+- **Cristais e drops:** cristalização coletiva, item mantido por jogador, dívida proporcional aos outros quatro membros e compensação automática nas distribuições futuras.
+- **Auditoria:** cada alteração salva autor, data, ação, resumo e snapshot completo.
+
+## Modelo de dados
+
+O estado lógico contém `cycles → recipients → contributions`, `drops` e `crystalPayments`. A tabela `app_state` guarda um snapshot versionado; `audit_log` guarda as versões históricas. O salvamento usa controle otimista de versão para impedir que duas janelas sobrescrevam uma à outra.
+
+## Administração segura
+
+O público acessa o link sem login e só faz consultas. O botão **Admin**, no canto inferior direito, usa o login gerenciado pela plataforma. O servidor só aceita gravações quando o e-mail autenticado coincide com a variável secreta `ADMIN_EMAIL`; esconder botões no navegador nunca é tratado como proteção.
+
+Na publicação, configure `ADMIN_EMAIL` com o e-mail do proprietário. Não coloque esse valor no repositório.
+
+## Regras e salvaguardas
+
+- valores devem ser inteiros positivos;
+- os cinco jogadores e a ordem de turnos não podem ser alterados por lançamentos;
+- uma entrega só é confirmada para o próximo da fila e quando o caixa cobre o item;
+- um item mantido credita os quatro demais em 1/5 do valor de cristais cada e debita o recebedor em 4/5;
+- distribuições futuras quitam primeiro credores e compensam dívidas automaticamente;
+- conflitos entre abas retornam erro e exigem recarga.
+
+## Desenvolvimento
+
+Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:generate`, execute `pnpm dev` e valide com `pnpm test` e `pnpm lint`. A publicação usa Cloudflare D1 por meio do OpenAI Sites.
+
+## Fluxo do líder
+
+1. Entre pelo botão **Admin**.
+2. Crie o item e informe seu valor por jogador.
+3. Registre cada contribuição com data e observação.
+4. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
+5. Registre drops cristalizados ou escolha quem manteve o item.
+6. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
