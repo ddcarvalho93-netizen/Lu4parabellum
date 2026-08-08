@@ -10,11 +10,22 @@ export type AppData = { cp: string; players: readonly Player[]; cycles: GearCycl
 export const initialData: AppData = {
   cp: "ParabelluM", players: PLAYERS,
   cycles: [{
-    id: "cycle-1", item: "Set Manticore", value: 500000, status: "active",
+    id: "cycle-1", item: "Top Joias D", value: 522000, status: "active",
     recipients: PLAYERS.map((player) => ({ player, received: false, contributions: [] })),
   }],
   drops: [], crystalPayments: [],
 };
+
+export function normalizeInitialItem(data: AppData): AppData {
+  const first = data.cycles?.[0];
+  const untouchedPlaceholder = first?.item === "Set Manticore" && first.value === 500000 &&
+    first.recipients.every(r => !r.received && r.contributions.length === 0);
+  if (!untouchedPlaceholder) return data;
+  const next = structuredClone(data);
+  next.cycles[0].item = "Top Joias D";
+  next.cycles[0].value = 522000;
+  return next;
+}
 
 export function adena(n: number) { return new Intl.NumberFormat("pt-BR").format(Math.round(n)); }
 export function contributionTotal(r: GearRecipient) { return r.contributions.reduce((s, c) => s + c.amount, 0); }

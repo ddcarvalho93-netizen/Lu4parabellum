@@ -2,7 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { appState, auditLog } from "@/db/schema";
 import { getChatGPTUser } from "@/app/chatgpt-auth";
-import { initialData, validateData, type AppData } from "@/app/lib/model";
+import { initialData, normalizeInitialItem, validateData, type AppData } from "@/app/lib/model";
 
 async function adminEmail() { return (globalThis as { process?: { env?: Record<string,string> } }).process?.env?.ADMIN_EMAIL?.toLowerCase() ?? ""; }
 async function isAdmin() { const u = await getChatGPTUser(); const expected = await adminEmail(); return !!u && !!expected && u.email.toLowerCase() === expected; }
@@ -12,7 +12,8 @@ export async function GET() {
     const db = getDb();
     const [row] = await db.select().from(appState).where(eq(appState.id, 1));
     const history = await db.select({ id: auditLog.id, action: auditLog.action, actor: auditLog.actor, summary: auditLog.summary, createdAt: auditLog.createdAt }).from(auditLog).orderBy(desc(auditLog.id)).limit(40);
-    return Response.json({ data: row ? JSON.parse(row.payload) : initialData, version: row?.version ?? 0, history, admin: await isAdmin() });
+    const stored = row ? JSON.parse(row.payload) as AppData : initialData;
+    return Response.json({ data: normalizeInitialItem(stored), version: row?.version ?? 0, history, admin: await isAdmin() });
   } catch {
     return Response.json({ data: initialData, version: 0, history: [], admin: await isAdmin(), setup: true });
   }

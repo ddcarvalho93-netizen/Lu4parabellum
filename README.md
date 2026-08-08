@@ -12,6 +12,8 @@ Aplicativo público de prestação de contas para a CP ParabelluM, com edição 
 
 O estado lógico contém `cycles → recipients → contributions`, `drops` e `crystalPayments`. A tabela `app_state` guarda um snapshot versionado; `audit_log` guarda as versões históricas. O salvamento usa controle otimista de versão para impedir que duas janelas sobrescrevam uma à outra.
 
+O primeiro ciclo configurado é **Top Joias D**, no valor de **522.000 Adena por jogador**.
+
 ## Administração segura
 
 O público acessa o link sem login e só faz consultas. O botão **Admin**, no canto inferior direito, usa o login gerenciado pela plataforma. O servidor só aceita gravações quando o e-mail autenticado coincide com a variável secreta `ADMIN_EMAIL`; esconder botões no navegador nunca é tratado como proteção.
