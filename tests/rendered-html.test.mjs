@@ -6,6 +6,7 @@ async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
+
   return worker.fetch(
     new Request("http://localhost/", { headers: { accept: "text/html" } }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
@@ -17,6 +18,7 @@ test("server-renders the complete public ParabelluM dashboard", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
   const html = await response.text();
   assert.match(html, /<title>ParabelluM • Controle da CP<\/title>/i);
   assert.match(html, /Top Joias D/);
@@ -26,19 +28,23 @@ test("server-renders the complete public ParabelluM dashboard", async () => {
   assert.match(html, /Gladiator/);
   assert.match(html, /Dados públicos em modo somente leitura/);
   assert.match(html, /parabellum-emblem\.png/);
-  assert.match(html, /parabellum-party\.png/);
+  assert.match(html, /parabellum-party-v2\.png/);
+  assert.match(html, /Dual Blunt/);
+
   for (const player of ["Ardranes", "Doidinha", "xFonseca", "Sooul", "DeusCriolo"]) {
     assert.match(html, new RegExp(`>${player}<`));
   }
+
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|Building your site/i);
 });
 
 test("ships the final brand assets and removes the disposable starter", async () => {
   const [emblem, party, social] = await Promise.all([
     stat(new URL("../public/parabellum-emblem.png", import.meta.url)),
-    stat(new URL("../public/parabellum-party.png", import.meta.url)),
+    stat(new URL("../public/parabellum-party-v2.png", import.meta.url)),
     stat(new URL("../public/og.png", import.meta.url)),
   ]);
+
   assert.ok(emblem.size > 10_000);
   assert.ok(party.size > 100_000);
   assert.ok(social.size > 100_000);
@@ -50,6 +56,7 @@ test("keeps recipient ordering owner-editable and protects server writes", async
     readFile(new URL("../app/Dashboard.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/state/route.ts", import.meta.url), "utf8"),
   ]);
+
   assert.match(dashboard, /function reorderRecipient/);
   assert.match(dashboard, /draggable=\{canDrag\}/);
   assert.match(dashboard, /Jogadores já equipados ficam travados/);
@@ -57,4 +64,35 @@ test("keeps recipient ordering owner-editable and protects server writes", async
   assert.match(route, /status: 403/);
   assert.match(route, /status: 409/);
   assert.match(route, /validateData\(body\.data\)/);
+});
+
+test("ships the class-themed crystal vault and complete movement feed", async () => {
+  const [dashboard, theme] = await Promise.all([
+    readFile(new URL("../app/Dashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/theme.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(dashboard, /COFRE DE CRISTAIS D/);
+  assert.match(dashboard, /SALDOS DA FORMAÇÃO/);
+  assert.match(dashboard, /PLAYER_META\[p\]/);
+  assert.match(dashboard, /data\.crystalPayments\.map/);
+  assert.match(dashboard, /REGRA PARABELLUM/);
+  assert.match(theme, /\.crystal-vault/);
+  assert.match(theme, /\.crystal-content \.ledger-card\.tyrant/);
+  assert.match(theme, /@media\(max-width:480px\).*\.crystal-content \.ledger/s);
+});
+
+test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", async () => {
+  const [dashboard, theme] = await Promise.all([
+    readFile(new URL("../app/Dashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/theme.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(dashboard, /function AdenaInput/);
+  assert.match(dashboard, /50k.*100k.*250k.*500k.*1kk/);
+  assert.match(dashboard, /parseAdenaInput\(fd\.get\("amount"\)\)/);
+  assert.match(dashboard, /adminSection==="adena"/);
+  assert.match(dashboard, /adminSection==="crystal"/);
+  assert.match(theme, /\.adena-quick/);
+  assert.match(theme, /\.admin-switch/);
 });

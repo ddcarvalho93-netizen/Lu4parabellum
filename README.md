@@ -2,12 +2,12 @@
 
 Aplicativo público de prestação de contas para a CP ParabelluM, com edição exclusiva do proprietário.
 
-Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Tank Dark Elf)** e **Doidinha (Gladiadora humana)**. A identidade visual usa o emblema oficial do grupo e uma arte original dessa formação.
+Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Tank Dark Elf)** e **Doidinha (Gladiadora humana com dual blunt)**. A identidade visual usa o emblema oficial do grupo e uma arte original dessa formação; o brasão fica no alto da composição para não competir com o cartão do objetivo atual.
 
 ## O que controla
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
-- **Cristais e drops:** cristalização coletiva, item mantido por jogador, dívida proporcional aos outros quatro membros e compensação automática nas distribuições futuras.
+- **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática e uma linha do tempo conjunta de drops e distribuições.
 - **Auditoria:** cada alteração salva autor, data, ação, resumo e snapshot completo.
 
 ## Modelo de dados
@@ -40,6 +40,7 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 1. Entre pelo botão **Admin**.
 2. Crie o item e informe seu valor por jogador.
 3. Registre cada contribuição com data e observação.
+   O campo de Adena aceita o padrão do jogo (`50k`, `500k`, `1kk`) e números com pontos (`500.000`); atalhos comuns aparecem logo abaixo do campo.
 4. Reorganize os jogadores pendentes em **Ordem de recebimento** quando necessário; jogadores já equipados ficam travados para preservar o histórico.
 5. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
 6. Registre drops cristalizados ou escolha quem manteve o item.
