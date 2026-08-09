@@ -59,7 +59,7 @@ test("keeps recipient ordering owner-editable and protects server writes", async
 
   assert.match(dashboard, /function reorderRecipient/);
   assert.match(dashboard, /draggable=\{canDrag\}/);
-  assert.match(dashboard, /Edite a rodada atual no Admin/);
+  assert.match(dashboard, /Use Reward parcial no cartão do jogador/);
   assert.match(dashboard, /function editCurrentCycle/);
   assert.match(dashboard, /Editar rodada atual/);
   assert.match(dashboard, /Encerrar e iniciar próxima rodada/);
@@ -96,6 +96,10 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /function AdenaInput/);
   assert.match(dashboard, /50k.*100k.*250k.*500k.*1kk/);
   assert.match(dashboard, /parseAdenaInput\(fd\.get\("amount"\)\)/);
+  assert.match(dashboard, /async function giveGearReward/);
+  assert.match(dashboard, /Reward parcial • até/);
+  assert.match(dashboard, /Rewards pagos/);
+  assert.match(dashboard, /Reward máximo disponível/);
   assert.match(dashboard, /adminSection==="adena"/);
   assert.match(dashboard, /adminSection==="crystal"/);
   assert.match(dashboard, /async function deliverCrystals/);
@@ -108,6 +112,8 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /Confirmar venda/);
   assert.match(dashboard, /deliverDropAdena/);
   assert.match(theme, /\.adena-quick/);
+  assert.match(theme, /\.gear-reward/);
+  assert.match(theme, /\.reward-toggle/);
   assert.match(theme, /\.admin-switch/);
   assert.match(theme, /\.crystal-settle/);
   assert.match(theme, /\.loot-sales/);

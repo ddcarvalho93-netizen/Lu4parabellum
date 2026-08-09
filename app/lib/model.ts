@@ -1,7 +1,8 @@
 export const PLAYERS = ["Ardranes", "Doidinha", "xFonseca", "Sooul", "DeusCriolo"] as const;
 export type Player = (typeof PLAYERS)[number];
 export type Contribution = { id: string; player: Player; amount: number; at: string; note: string };
-export type GearRecipient = { player: Player; received: boolean; receivedAt?: string; contributions: Contribution[] };
+export type GearReward = { id: string; amount: number; at: string; note: string };
+export type GearRecipient = { player: Player; received: boolean; receivedAt?: string; contributions: Contribution[]; rewards?: GearReward[] };
 export type GearCycle = { id: string; item: string; value: number; status: "active" | "complete" | "closed"; closedAt?: string; closeReason?: string; recipients: GearRecipient[] };
 export type DropEvent = { id: string; at: string; item: string; crystals: number; keeper: Player | null; note: string };
 export type CrystalPayment = { id: string; at: string; crystals: number; note: string; player?: Player };
@@ -49,8 +50,9 @@ export function parseAdenaInput(value: unknown) {
   return Number.isSafeInteger(amount) && amount > 0 ? amount : Number.NaN;
 }
 export function contributionTotal(r: GearRecipient) { return r.contributions.reduce((s, c) => s + c.amount, 0); }
-export function recipientBalance(r: GearRecipient, value: number) { return contributionTotal(r) - (r.received ? value : 0); }
-export function cycleFund(c: GearCycle) { return c.recipients.reduce((s, r) => s + contributionTotal(r), 0) - c.recipients.filter(r => r.received).length * c.value; }
+export function rewardTotal(r: GearRecipient) { return (r.rewards ?? []).reduce((s, reward) => s + reward.amount, 0); }
+export function recipientBalance(r: GearRecipient, value: number) { return contributionTotal(r) - rewardTotal(r) - (r.received ? value : 0); }
+export function cycleFund(c: GearCycle) { return c.recipients.reduce((s, r) => s + contributionTotal(r) - rewardTotal(r), 0) - c.recipients.filter(r => r.received).length * c.value; }
 
 export function crystalLedger(data: AppData) {
   const balance = Object.fromEntries(PLAYERS.map(p => [p, 0])) as Record<Player, number>;
@@ -123,10 +125,18 @@ export function validateData(data: AppData): string[] {
     if (!c.item.trim()) errors.push(`Item ${i + 1} sem nome.`);
     if (!Number.isSafeInteger(c.value) || c.value <= 0) errors.push(`Valor inválido no item ${c.item}.`);
     if (c.recipients.length !== PLAYERS.length || new Set(c.recipients.map(r => r.player)).size !== PLAYERS.length) errors.push(`Turnos inconsistentes em ${c.item}.`);
-    c.recipients.forEach(r => r.contributions.forEach(x => {
-      if (!Number.isSafeInteger(x.amount) || x.amount <= 0) errors.push(`Contribuição inválida de ${r.player}.`);
-      if (!x.at) errors.push(`Contribuição de ${r.player} sem data.`);
-    }));
+    c.recipients.forEach(r => {
+      r.contributions.forEach(x => {
+        if (!Number.isSafeInteger(x.amount) || x.amount <= 0) errors.push(`Contribuição inválida de ${r.player}.`);
+        if (!x.at) errors.push(`Contribuição de ${r.player} sem data.`);
+      });
+      (r.rewards ?? []).forEach(reward => {
+        if (!Number.isSafeInteger(reward.amount) || reward.amount <= 0) errors.push(`Reward inválido de ${r.player}.`);
+        if (!reward.at) errors.push(`Reward de ${r.player} sem data.`);
+      });
+      if (rewardTotal(r) > contributionTotal(r)) errors.push(`Rewards maiores que as contribuições de ${r.player}.`);
+    });
+    if (cycleFund(c) < 0) errors.push(`Caixa negativo em ${c.item}.`);
     const next = c.recipients.findIndex(r => !r.received);
     if (c.recipients.some((r, ix) => r.received && ix > next && next >= 0)) errors.push(`Ordem de recebimento quebrada em ${c.item}.`);
     if (!["active", "complete", "closed"].includes(c.status)) errors.push(`Status inválido em ${c.item}.`);
