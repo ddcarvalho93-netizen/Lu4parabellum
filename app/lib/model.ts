@@ -2,7 +2,7 @@ export const PLAYERS = ["Ardranes", "Doidinha", "xFonseca", "Sooul", "DeusCriolo
 export type Player = (typeof PLAYERS)[number];
 export type Contribution = { id: string; player: Player; amount: number; at: string; note: string };
 export type GearRecipient = { player: Player; received: boolean; receivedAt?: string; contributions: Contribution[] };
-export type GearCycle = { id: string; item: string; value: number; status: "active" | "complete"; recipients: GearRecipient[] };
+export type GearCycle = { id: string; item: string; value: number; status: "active" | "complete" | "closed"; closedAt?: string; closeReason?: string; recipients: GearRecipient[] };
 export type DropEvent = { id: string; at: string; item: string; crystals: number; keeper: Player | null; note: string };
 export type CrystalPayment = { id: string; at: string; crystals: number; note: string; player?: Player };
 export type DropSale = { id: string; at: string; item: string; quantity: number; unitPrice: number; status: "listed" | "sold"; soldAt?: string; note: string };
@@ -129,7 +129,10 @@ export function validateData(data: AppData): string[] {
     }));
     const next = c.recipients.findIndex(r => !r.received);
     if (c.recipients.some((r, ix) => r.received && ix > next && next >= 0)) errors.push(`Ordem de recebimento quebrada em ${c.item}.`);
+    if (!["active", "complete", "closed"].includes(c.status)) errors.push(`Status inválido em ${c.item}.`);
+    if (c.status === "closed" && !c.closedAt) errors.push(`Rodada encerrada sem data em ${c.item}.`);
   });
+  if ((data.cycles?.filter(c => c.status === "active").length ?? 0) > 1) errors.push("Existe mais de uma rodada ativa.");
   data.drops?.forEach(d => { if (!d.item.trim() || !Number.isSafeInteger(d.crystals) || d.crystals <= 0) errors.push("Drop com dados inválidos."); });
   const previousPayments: CrystalPayment[] = [];
   data.crystalPayments?.forEach(p => {

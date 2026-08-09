@@ -7,6 +7,7 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 ## O que controla
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
+- **Rodada atual editável:** o Admin pode alterar item e valor sem perder fila ou contribuições, ou encerrar a rodada e iniciar a próxima preservando a anterior no histórico.
 - **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
 - **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda e pode ser quitada diretamente no cartão de cada jogador.
 - **Auditoria:** cada alteração salva autor, data, ação, resumo e snapshot completo.
@@ -39,11 +40,12 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 ## Fluxo do líder
 
 1. Entre pelo botão **Admin**.
-2. Crie o item e informe seu valor por jogador.
+2. Em **Editar rodada atual**, altere o item ou o valor por jogador quando o objetivo mudar; fila e contribuições são preservadas.
 3. Registre cada contribuição com data e observação.
    O campo de Adena aceita o padrão do jogo (`50k`, `500k`, `1kk`) e números com pontos (`500.000`); atalhos comuns aparecem logo abaixo do campo.
 4. Reorganize os jogadores pendentes em **Ordem de recebimento** quando necessário; jogadores já equipados ficam travados para preservar o histórico.
 5. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
+   Para avançar mantendo o histórico, use **Encerrar e iniciar próxima rodada**; a anterior deixa de aceitar alterações e a nova vira o objetivo ativo.
 6. Registre drops cristalizados ou escolha quem manteve o item.
 7. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
 8. Na tela **Cristais & Drops**, cada cartão positivo mostra ao Admin o botão **Confirmar entrega**. Um clique registra a entrega total, zera o “A receber” e grava a operação no histórico; não existe lançamento parcial.

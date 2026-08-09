@@ -37,6 +37,22 @@ test("tracks contributions, delivery debt and available group funds", () => {
   assert.equal(cycleFund(cycle), 78_000);
 });
 
+test("closes the previous equipment round and keeps exactly one current round", () => {
+  const data = clone(initialData);
+  data.cycles[0].status = "closed";
+  data.cycles[0].closedAt = "2026-08-09";
+  data.cycles[0].closeReason = "Purchased individually";
+  data.cycles.push({
+    id: "cycle-2", item: "Top Weapon D", value: 1_200_000, status: "active",
+    recipients: PLAYERS.map(player => ({player, received: false, contributions: []})),
+  });
+  assert.deepEqual(validateData(data), []);
+
+  data.cycles[0].status = "active";
+  delete data.cycles[0].closedAt;
+  assert.match(validateData(data).join(" "), /mais de uma rodada ativa/);
+});
+
 test("accepts Lineage Adena shorthand and formatted amounts", () => {
   assert.equal(parseAdenaInput("50k"), 50_000);
   assert.equal(parseAdenaInput("500K"), 500_000);

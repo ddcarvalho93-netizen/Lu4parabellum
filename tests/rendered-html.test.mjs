@@ -59,7 +59,12 @@ test("keeps recipient ordering owner-editable and protects server writes", async
 
   assert.match(dashboard, /function reorderRecipient/);
   assert.match(dashboard, /draggable=\{canDrag\}/);
-  assert.match(dashboard, /Jogadores já equipados ficam travados/);
+  assert.match(dashboard, /Edite a rodada atual no Admin/);
+  assert.match(dashboard, /function editCurrentCycle/);
+  assert.match(dashboard, /Editar rodada atual/);
+  assert.match(dashboard, /Encerrar e iniciar próxima rodada/);
+  assert.match(dashboard, /c\.status="closed"/);
+  assert.match(dashboard, /Somente a rodada atual aceita entregas/);
   assert.match(route, /if \(!\(await isAdmin\(\)\) \|\| !user\)/);
   assert.match(route, /status: 403/);
   assert.match(route, /status: 409/);
