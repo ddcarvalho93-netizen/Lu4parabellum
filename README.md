@@ -7,7 +7,7 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 ## O que controla
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
-- **Reward parcial:** o Admin pode devolver parte da Adena diretamente pelo cartão de um jogador; o pagamento reduz o crédito e o caixa da rodada sem marcar o item como entregue.
+- **Reward parcial:** o Admin pode adiantar parte da Adena diretamente pelo cartão de um jogador, mesmo acima do que ele já contribuiu; o pagamento reduz o caixa e pode gerar débito individual sem marcar o item como entregue.
 - **Rodada atual editável:** o Admin pode alterar item e valor sem perder fila ou contribuições, ou encerrar a rodada e iniciar a próxima preservando a anterior no histórico.
 - **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
 - **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda e pode ser quitada diretamente no cartão de cada jogador.
@@ -30,7 +30,7 @@ Na publicação, configure `ADMIN_EMAIL` com o e-mail do proprietário. Não col
 - valores devem ser inteiros positivos;
 - os cinco jogadores e a ordem de turnos não podem ser alterados por lançamentos;
 - uma entrega só é confirmada para o próximo da fila e quando o caixa cobre o item;
-- um reward parcial nunca pode ultrapassar o crédito disponível do jogador nem a Adena existente no caixa;
+- um reward parcial pode ultrapassar a contribuição do jogador, mas nunca a Adena existente no caixa nem o valor restante do item para aquele jogador;
 - um item mantido credita os quatro demais em 1/5 do valor de cristais cada e debita o recebedor em 4/5;
 - distribuições futuras quitam primeiro credores e compensam dívidas automaticamente;
 - conflitos entre abas retornam erro e exigem recarga.
@@ -46,7 +46,7 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 3. Registre cada contribuição com data e observação.
    O campo de Adena aceita o padrão do jogo (`50k`, `500k`, `1kk`) e números com pontos (`500.000`); atalhos comuns aparecem logo abaixo do campo.
 4. Reorganize os jogadores pendentes em **Ordem de recebimento** quando necessário; jogadores já equipados ficam travados para preservar o histórico.
-5. Para devolver parte da Adena, clique em **Reward parcial** no cartão do jogador, informe o valor (`200k`, por exemplo) e confirme. O quadro passa a mostrar contribuição bruta, rewards pagos e saldo líquido.
+5. Para adiantar parte da Adena, clique em **Reward parcial** no cartão do jogador, informe o valor (`200k`, por exemplo) e confirme. Se o reward for maior que a contribuição individual, o saldo fica negativo e as próximas contribuições quitam essa dívida. O quadro mostra contribuição bruta, rewards recebidos e saldo líquido.
 6. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
    Para avançar mantendo o histórico, use **Encerrar e iniciar próxima rodada**; a anterior deixa de aceitar alterações e a nova vira o objetivo ativo.
 7. Registre drops cristalizados ou escolha quem manteve o item.

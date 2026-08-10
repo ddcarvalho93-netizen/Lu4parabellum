@@ -59,7 +59,7 @@ test("keeps recipient ordering owner-editable and protects server writes", async
 
   assert.match(dashboard, /function reorderRecipient/);
   assert.match(dashboard, /draggable=\{canDrag\}/);
-  assert.match(dashboard, /Use Reward parcial no cartão do jogador/);
+  assert.match(dashboard, /Use Reward parcial para adiantar Adena/);
   assert.match(dashboard, /function editCurrentCycle/);
   assert.match(dashboard, /Editar rodada atual/);
   assert.match(dashboard, /Encerrar e iniciar próxima rodada/);
@@ -98,7 +98,8 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /parseAdenaInput\(fd\.get\("amount"\)\)/);
   assert.match(dashboard, /async function giveGearReward/);
   assert.match(dashboard, /Reward parcial • até/);
-  assert.match(dashboard, /Rewards pagos/);
+  assert.match(dashboard, /Rewards recebidos/);
+  assert.match(dashboard, /gerar débito quando necessário/);
   assert.match(dashboard, /Reward máximo disponível/);
   assert.match(dashboard, /adminSection==="adena"/);
   assert.match(dashboard, /adminSection==="crystal"/);

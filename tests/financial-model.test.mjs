@@ -38,25 +38,40 @@ test("tracks contributions, delivery debt and available group funds", () => {
   assert.equal(cycleFund(cycle), 78_000);
 });
 
-test("pays a partial gear reward without marking the item as delivered", () => {
+test("allows a partial gear reward above the player's contribution", () => {
   const data = clone(initialData);
-  const recipient = data.cycles[0].recipients.find(player => player.player === "Doidinha");
+  const cycle = data.cycles[0];
+  cycle.value = 2_000_000;
+  const recipientIndex = cycle.recipients.findIndex(player => player.player === "Doidinha");
+  const [recipient] = cycle.recipients.splice(recipientIndex, 1);
+  cycle.recipients.unshift(recipient);
   recipient.contributions.push({
     id: "c1", player: "Doidinha", amount: 1_500_000, at: "2026-08-09", note: "",
   });
+  cycle.recipients.find(player => player.player === "Ardranes").contributions.push({
+    id: "c2", player: "Ardranes", amount: 600_000, at: "2026-08-09", note: "",
+  });
   recipient.rewards = [{
-    id: "r1", amount: 200_000, at: "2026-08-09", note: "Reward parcial",
+    id: "r1", amount: 1_700_000, at: "2026-08-09", note: "Reward antecipado",
   }];
 
   assert.equal(contributionTotal(recipient), 1_500_000);
-  assert.equal(rewardTotal(recipient), 200_000);
-  assert.equal(recipientBalance(recipient, data.cycles[0].value), 1_300_000);
-  assert.equal(cycleFund(data.cycles[0]), 1_300_000);
+  assert.equal(rewardTotal(recipient), 1_700_000);
+  assert.equal(recipientBalance(recipient, cycle.value), -200_000);
+  assert.equal(cycleFund(cycle), 400_000);
   assert.equal(recipient.received, false);
   assert.deepEqual(validateData(data), []);
 
-  recipient.rewards.push({id: "r2", amount: 1_300_001, at: "2026-08-09", note: "Inválido"});
-  assert.match(validateData(data).join(" "), /Rewards maiores que as contribuições de Doidinha/);
+  recipient.received = true;
+  recipient.receivedAt = "2026-08-09";
+  assert.equal(recipientBalance(recipient, cycle.value), -500_000);
+  assert.equal(cycleFund(cycle), 100_000);
+  assert.deepEqual(validateData(data), []);
+
+  recipient.received = false;
+  delete recipient.receivedAt;
+  recipient.rewards.push({id: "r2", amount: 300_001, at: "2026-08-09", note: "Inválido"});
+  assert.match(validateData(data).join(" "), /Rewards maiores que o valor do item para Doidinha/);
 });
 
 test("closes the previous equipment round and keeps exactly one current round", () => {
