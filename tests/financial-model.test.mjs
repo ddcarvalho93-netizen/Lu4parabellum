@@ -38,6 +38,23 @@ test("tracks contributions, delivery debt and available group funds", () => {
   assert.equal(cycleFund(cycle), 78_000);
 });
 
+test("moves a contribution from the wrong player to the corrected player", () => {
+  const data = clone(initialData);
+  const wrongRecipient = data.cycles[0].recipients.find(player => player.player === "Ardranes");
+  const correctRecipient = data.cycles[0].recipients.find(player => player.player === "Doidinha");
+  wrongRecipient.contributions.push({
+    id: "wrong-player", player: "Doidinha", amount: 500_000, at: "2026-08-10", note: "",
+  });
+
+  assert.match(validateData(data).join(" "), /Contribuição de Doidinha registrada no saldo de Ardranes/);
+
+  const [corrected] = wrongRecipient.contributions.splice(0, 1);
+  correctRecipient.contributions.push(corrected);
+  assert.equal(contributionTotal(wrongRecipient), 0);
+  assert.equal(contributionTotal(correctRecipient), 500_000);
+  assert.deepEqual(validateData(data), []);
+});
+
 test("allows a partial gear reward above the player's contribution", () => {
   const data = clone(initialData);
   const cycle = data.cycles[0];

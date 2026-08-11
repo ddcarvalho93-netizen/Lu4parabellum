@@ -7,6 +7,7 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 ## O que controla
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
+- **Correção de contribuições:** lançamentos da rodada atual podem ter jogador, valor, data e observação corrigidos pelo Admin, com registro da mudança na auditoria.
 - **Reward parcial:** o Admin pode adiantar parte da Adena diretamente pelo cartão de um jogador, mesmo acima do que ele já contribuiu; o pagamento reduz o caixa e pode gerar débito individual sem marcar o item como entregue.
 - **Rodada atual editável:** o Admin pode alterar item e valor sem perder fila ou contribuições, ou encerrar a rodada e iniciar a próxima preservando a anterior no histórico.
 - **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
@@ -28,6 +29,7 @@ Na publicação, configure `ADMIN_EMAIL` com o e-mail do proprietário. Não col
 ## Regras e salvaguardas
 
 - valores devem ser inteiros positivos;
+- cada contribuição deve pertencer ao mesmo jogador que recebe seu saldo, e correções que deixariam o caixa negativo são bloqueadas;
 - os cinco jogadores e a ordem de turnos não podem ser alterados por lançamentos;
 - uma entrega só é confirmada para o próximo da fila e quando o caixa cobre o item;
 - um reward parcial pode ultrapassar a contribuição do jogador, mas nunca a Adena existente no caixa nem o valor restante do item para aquele jogador;
@@ -45,11 +47,12 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 2. Em **Editar rodada atual**, altere o item ou o valor por jogador quando o objetivo mudar; fila e contribuições são preservadas.
 3. Registre cada contribuição com data e observação.
    O campo de Adena aceita o padrão do jogo (`50k`, `500k`, `1kk`) e números com pontos (`500.000`); atalhos comuns aparecem logo abaixo do campo.
-4. Reorganize os jogadores pendentes em **Ordem de recebimento** quando necessário; jogadores já equipados ficam travados para preservar o histórico.
-5. Para adiantar parte da Adena, clique em **Reward parcial** no cartão do jogador, informe o valor (`200k`, por exemplo) e confirme. Se o reward for maior que a contribuição individual, o saldo fica negativo e as próximas contribuições quitam essa dívida. O quadro mostra contribuição bruta, rewards recebidos e saldo líquido.
-6. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
+4. Se lançar no personagem errado, abra **Corrigir contribuição**, clique **Editar**, escolha o jogador correto e salve. Também é possível ajustar valor, data e observação.
+5. Reorganize os jogadores pendentes em **Ordem de recebimento** quando necessário; jogadores já equipados ficam travados para preservar o histórico.
+6. Para adiantar parte da Adena, clique em **Reward parcial** no cartão do jogador, informe o valor (`200k`, por exemplo) e confirme. Se o reward for maior que a contribuição individual, o saldo fica negativo e as próximas contribuições quitam essa dívida. O quadro mostra contribuição bruta, rewards recebidos e saldo líquido.
+7. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
    Para avançar mantendo o histórico, use **Encerrar e iniciar próxima rodada**; a anterior deixa de aceitar alterações e a nova vira o objetivo ativo.
-7. Registre drops cristalizados ou escolha quem manteve o item.
-8. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
-9. Na tela **Cristais & Drops**, cada cartão positivo mostra ao Admin o botão **Confirmar entrega**. Um clique registra a entrega total, zera o “A receber” e grava a operação no histórico; não existe lançamento parcial.
-10. Para itens vendidos, crie o anúncio em **Colocar item na loja**. Ajuste o preço no cartão enquanto necessário e clique **Confirmar venda** somente quando a loja vender; o total é então dividido entre os cinco e a entrega da Adena também é confirmada pelo cartão de cada jogador.
+8. Registre drops cristalizados ou escolha quem manteve o item.
+9. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
+10. Na tela **Cristais & Drops**, cada cartão positivo mostra ao Admin o botão **Confirmar entrega**. Um clique registra a entrega total, zera o “A receber” e grava a operação no histórico; não existe lançamento parcial.
+11. Para itens vendidos, crie o anúncio em **Colocar item na loja**. Ajuste o preço no cartão enquanto necessário e clique **Confirmar venda** somente quando a loja vender; o total é então dividido entre os cinco e a entrega da Adena também é confirmada pelo cartão de cada jogador.

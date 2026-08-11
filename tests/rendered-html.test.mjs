@@ -96,6 +96,11 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /function AdenaInput/);
   assert.match(dashboard, /50k.*100k.*250k.*500k.*1kk/);
   assert.match(dashboard, /parseAdenaInput\(fd\.get\("amount"\)\)/);
+  assert.match(dashboard, /async function editContribution/);
+  assert.match(dashboard, /Corrigir contribuição/);
+  assert.match(dashboard, /name="edit_player"/);
+  assert.match(dashboard, /Contribuição corrigida/);
+  assert.match(dashboard, /cycleFund\(targetCycle\)<0/);
   assert.match(dashboard, /async function giveGearReward/);
   assert.match(dashboard, /Reward parcial • até/);
   assert.match(dashboard, /Rewards recebidos/);
@@ -113,6 +118,8 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /Confirmar venda/);
   assert.match(dashboard, /deliverDropAdena/);
   assert.match(theme, /\.adena-quick/);
+  assert.match(theme, /\.contribution-editor/);
+  assert.match(theme, /\.edit-contribution-buttons/);
   assert.match(theme, /\.gear-reward/);
   assert.match(theme, /\.reward-toggle/);
   assert.match(theme, /\.admin-switch/);

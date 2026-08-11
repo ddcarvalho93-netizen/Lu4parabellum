@@ -129,6 +129,7 @@ export function validateData(data: AppData): string[] {
       r.contributions.forEach(x => {
         if (!Number.isSafeInteger(x.amount) || x.amount <= 0) errors.push(`Contribuição inválida de ${r.player}.`);
         if (!x.at) errors.push(`Contribuição de ${r.player} sem data.`);
+        if (x.player !== r.player) errors.push(`Contribuição de ${x.player} registrada no saldo de ${r.player}.`);
       });
       (r.rewards ?? []).forEach(reward => {
         if (!Number.isSafeInteger(reward.amount) || reward.amount <= 0) errors.push(`Reward inválido de ${r.player}.`);
