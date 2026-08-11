@@ -124,6 +124,12 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /Colocar item na loja/);
   assert.match(dashboard, /Atualizar preço/);
   assert.match(dashboard, /Confirmar venda/);
+  assert.match(dashboard, /async function deleteDropSale/);
+  assert.match(dashboard, /async function crystallizeDropSale/);
+  assert.match(dashboard, /Excluir anúncio/);
+  assert.match(dashboard, /◆ Cristalizar/);
+  assert.match(dashboard, /Quantidade total de cristais D/);
+  assert.match(dashboard, /Item da loja cristalizado/);
   assert.match(dashboard, /deliverDropAdena/);
   assert.match(theme, /\.adena-quick/);
   assert.match(theme, /\.contribution-editor/);
@@ -139,4 +145,7 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(theme, /\.crystal-settle/);
   assert.match(theme, /\.loot-sales/);
   assert.match(theme, /\.shop-actions/);
+  assert.match(theme, /\.shop-secondary-actions/);
+  assert.match(theme, /\.crystallize-sale/);
+  assert.match(theme, /\.sale-delete-confirm/);
 });

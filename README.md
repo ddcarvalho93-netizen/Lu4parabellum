@@ -11,7 +11,7 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 - **Reward parcial:** o Admin pode adiantar parte da Adena diretamente pelo cartão de um jogador, mesmo acima do que ele já contribuiu; cada reward pode ser excluído com confirmação. Rewards pendentes devolvem a Adena ao caixa; em item já entregue, a exclusão corrige o histórico sem alterar o custo final do item.
 - **Rodada atual editável:** o Admin pode alterar item e valor sem perder fila ou contribuições, ou encerrar a rodada e iniciar a próxima preservando a anterior no histórico.
 - **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
-- **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda e pode ser quitada diretamente no cartão de cada jogador.
+- **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda. Enquanto estiver na loja, o Admin também pode excluir o anúncio ou informar o total de cristais D e converter o lote diretamente para a divisão dos cinco.
 - **Auditoria:** cada alteração salva autor, data, ação, resumo e snapshot completo.
 
 ## Modelo de dados
@@ -55,4 +55,4 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 8. Registre drops cristalizados ou escolha quem manteve o item.
 9. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
 10. Na tela **Cristais & Drops**, cada cartão positivo mostra ao Admin o botão **Confirmar entrega**. Um clique registra a entrega total, zera o “A receber” e grava a operação no histórico; não existe lançamento parcial.
-11. Para itens vendidos, crie o anúncio em **Colocar item na loja**. Ajuste o preço no cartão enquanto necessário e clique **Confirmar venda** somente quando a loja vender; o total é então dividido entre os cinco e a entrega da Adena também é confirmada pelo cartão de cada jogador.
+11. Para itens vendidos, crie o anúncio em **Colocar item na loja**. Ajuste o preço no cartão enquanto necessário e clique **Confirmar venda** somente quando a loja vender; o total é então dividido entre os cinco e a entrega da Adena também é confirmada pelo cartão de cada jogador. Se desistir da venda, use **Excluir anúncio**. Para cristalizar, use **Cristalizar**, digite o total de cristais D e confirme; o anúncio sai da loja e os cristais entram imediatamente na divisão.

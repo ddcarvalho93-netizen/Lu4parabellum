@@ -285,6 +285,28 @@ test("preserves every Adena and rotates indivisible sale remainders fairly", () 
   assert.ok(Math.max(...Object.values(ledger)) - Math.min(...Object.values(ledger)) <= 1);
 });
 
+test("moves an unsold shop listing into the crystal split", () => {
+  const data = clone(initialData);
+  data.dropSales.push({
+    id: "listing", at: "2026-08-11", item: "Enchant Weapon D", quantity: 2,
+    unitPrice: 338_000, status: "listed", note: "Loja em Giran",
+  });
+
+  const listing = data.dropSales.find(sale => sale.id === "listing");
+  data.dropSales = data.dropSales.filter(sale => sale.id !== listing.id);
+  data.drops.push({
+    id: "crystallized", at: "2026-08-11", item: `${listing.quantity}× ${listing.item}`,
+    crystals: 820, keeper: null, note: "Item retirado da loja e cristalizado para divisão da CP",
+  });
+
+  assert.equal(data.dropSales.length, 0);
+  assert.equal(data.drops[0].item, "2× Enchant Weapon D");
+  assert.deepEqual(crystalLedger(data), {
+    Ardranes: 164, Doidinha: 164, xFonseca: 164, Sooul: 164, DeusCriolo: 164,
+  });
+  assert.deepEqual(validateData(data), []);
+});
+
 test("rejects inconsistent recipient order and invalid financial values", () => {
   const data = clone(initialData);
   data.cycles[0].recipients[1].received = true;
