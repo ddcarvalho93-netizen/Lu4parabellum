@@ -91,6 +91,25 @@ test("allows a partial gear reward above the player's contribution", () => {
   assert.match(validateData(data).join(" "), /Rewards maiores que o valor do item para Doidinha/);
 });
 
+test("deleting a pending gear reward restores the player's balance and group fund", () => {
+  const data = clone(initialData);
+  const cycle = data.cycles[0];
+  cycle.value = 1_000_000;
+  const doidinha = cycle.recipients.find(player => player.player === "Doidinha");
+  const ardranes = cycle.recipients.find(player => player.player === "Ardranes");
+  doidinha.contributions.push({id: "c1", player: "Doidinha", amount: 500_000, at: "2026-08-10", note: ""});
+  ardranes.contributions.push({id: "c2", player: "Ardranes", amount: 500_000, at: "2026-08-10", note: ""});
+  doidinha.rewards = [{id: "r1", amount: 800_000, at: "2026-08-10", note: "Reward incorreto"}];
+
+  assert.equal(recipientBalance(doidinha, cycle.value), -300_000);
+  assert.equal(cycleFund(cycle), 200_000);
+
+  doidinha.rewards = doidinha.rewards.filter(reward => reward.id !== "r1");
+  assert.equal(recipientBalance(doidinha, cycle.value), 500_000);
+  assert.equal(cycleFund(cycle), 1_000_000);
+  assert.deepEqual(validateData(data), []);
+});
+
 test("closes the previous equipment round and keeps exactly one current round", () => {
   const data = clone(initialData);
   data.cycles[0].status = "closed";

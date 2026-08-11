@@ -102,9 +102,12 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /Contribuição corrigida/);
   assert.match(dashboard, /cycleFund\(targetCycle\)<0/);
   assert.match(dashboard, /async function giveGearReward/);
+  assert.match(dashboard, /async function deleteGearReward/);
   assert.match(dashboard, /Reward parcial • até/);
+  assert.match(dashboard, /Confirmar exclusão/);
+  assert.match(dashboard, /Reward excluído/);
   assert.match(dashboard, /Rewards recebidos/);
-  assert.match(dashboard, /gerar débito quando necessário/);
+  assert.match(dashboard, /exclua lançamentos incorretos no próprio cartão/);
   assert.match(dashboard, /Reward máximo disponível/);
   assert.match(dashboard, /adminSection==="adena"/);
   assert.match(dashboard, /adminSection==="crystal"/);
@@ -122,6 +125,8 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(theme, /\.edit-contribution-buttons/);
   assert.match(theme, /\.gear-reward/);
   assert.match(theme, /\.reward-toggle/);
+  assert.match(theme, /\.reward-records/);
+  assert.match(theme, /\.reward-delete-confirm/);
   assert.match(theme, /\.admin-switch/);
   assert.match(theme, /\.crystal-settle/);
   assert.match(theme, /\.loot-sales/);

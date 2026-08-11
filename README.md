@@ -8,7 +8,7 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 
 - **Equipamentos:** ciclos com item, valor unitário, fila dos 5 jogadores, contribuições datadas, caixa disponível, recebimentos e saldo individual (crédito/débito).
 - **Correção de contribuições:** lançamentos da rodada atual podem ter jogador, valor, data e observação corrigidos pelo Admin, com registro da mudança na auditoria.
-- **Reward parcial:** o Admin pode adiantar parte da Adena diretamente pelo cartão de um jogador, mesmo acima do que ele já contribuiu; o pagamento reduz o caixa e pode gerar débito individual sem marcar o item como entregue.
+- **Reward parcial:** o Admin pode adiantar parte da Adena diretamente pelo cartão de um jogador, mesmo acima do que ele já contribuiu; cada reward pendente pode ser excluído com confirmação, devolvendo a Adena ao caixa e recalculando o saldo.
 - **Rodada atual editável:** o Admin pode alterar item e valor sem perder fila ou contribuições, ou encerrar a rodada e iniciar a próxima preservando a anterior no histórico.
 - **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
 - **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda e pode ser quitada diretamente no cartão de cada jogador.
@@ -49,7 +49,7 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
    O campo de Adena aceita o padrão do jogo (`50k`, `500k`, `1kk`) e números com pontos (`500.000`); atalhos comuns aparecem logo abaixo do campo.
 4. Se lançar no personagem errado, abra **Corrigir contribuição**, clique **Editar**, escolha o jogador correto e salve. Também é possível ajustar valor, data e observação.
 5. Reorganize os jogadores pendentes em **Ordem de recebimento** quando necessário; jogadores já equipados ficam travados para preservar o histórico.
-6. Para adiantar parte da Adena, clique em **Reward parcial** no cartão do jogador, informe o valor (`200k`, por exemplo) e confirme. Se o reward for maior que a contribuição individual, o saldo fica negativo e as próximas contribuições quitam essa dívida. O quadro mostra contribuição bruta, rewards recebidos e saldo líquido.
+6. Para adiantar parte da Adena, clique em **Reward parcial** no cartão do jogador, informe o valor (`200k`, por exemplo) e confirme. Se o reward for maior que a contribuição individual, o saldo fica negativo e as próximas contribuições quitam essa dívida. Para desfazer um reward incorreto, use **Excluir → Confirmar exclusão** no mesmo cartão; a Adena volta ao caixa e a operação fica na auditoria.
 7. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
    Para avançar mantendo o histórico, use **Encerrar e iniciar próxima rodada**; a anterior deixa de aceitar alterações e a nova vira o objetivo ativo.
 8. Registre drops cristalizados ou escolha quem manteve o item.
