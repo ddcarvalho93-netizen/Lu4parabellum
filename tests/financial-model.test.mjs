@@ -110,6 +110,40 @@ test("deleting a pending gear reward restores the player's balance and group fun
   assert.deepEqual(validateData(data), []);
 });
 
+test("deletes one exact Adena contribution without hiding the player's other entries", () => {
+  const data = clone(initialData);
+  const cycle = data.cycles[0];
+  const ardranes = cycle.recipients.find(player => player.player === "Ardranes");
+  ardranes.contributions.push(
+    {id: "keep", player: "Ardranes", amount: 981_840, at: "2026-08-10", note: "Correta"},
+    {id: "delete", player: "Ardranes", amount: 473_840, at: "2026-08-11", note: "Lançada por engano"},
+  );
+
+  ardranes.contributions = ardranes.contributions.filter(entry => entry.id !== "delete");
+
+  assert.equal(contributionTotal(ardranes), 981_840);
+  assert.deepEqual(ardranes.contributions.map(entry => entry.id), ["keep"]);
+  assert.equal(cycleFund(cycle), 981_840);
+  assert.deepEqual(validateData(data), []);
+});
+
+test("removing a historical reward after delivery keeps the charged item balance", () => {
+  const data = clone(initialData);
+  const cycle = data.cycles[0];
+  const ardranes = cycle.recipients.find(player => player.player === "Ardranes");
+  ardranes.contributions.push({id: "c1", player: "Ardranes", amount: 522_000, at: "2026-08-10", note: ""});
+  ardranes.rewards = [{id: "r1", amount: 200_000, at: "2026-08-10", note: ""}];
+  ardranes.received = true;
+  ardranes.receivedAt = "2026-08-10";
+
+  const beforeBalance = recipientBalance(ardranes, cycle.value);
+  ardranes.rewards = [];
+
+  assert.equal(recipientBalance(ardranes, cycle.value), beforeBalance);
+  assert.equal(cycleFund(cycle), 0);
+  assert.deepEqual(validateData(data), []);
+});
+
 test("closes the previous equipment round and keeps exactly one current round", () => {
   const data = clone(initialData);
   data.cycles[0].status = "closed";

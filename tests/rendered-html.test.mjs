@@ -59,7 +59,7 @@ test("keeps recipient ordering owner-editable and protects server writes", async
 
   assert.match(dashboard, /function reorderRecipient/);
   assert.match(dashboard, /draggable=\{canDrag\}/);
-  assert.match(dashboard, /Use Reward parcial para adiantar Adena/);
+  assert.match(dashboard, /Abra Contribuições no cartão/);
   assert.match(dashboard, /function editCurrentCycle/);
   assert.match(dashboard, /Editar rodada atual/);
   assert.match(dashboard, /Encerrar e iniciar próxima rodada/);
@@ -97,9 +97,14 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /50k.*100k.*250k.*500k.*1kk/);
   assert.match(dashboard, /parseAdenaInput\(fd\.get\("amount"\)\)/);
   assert.match(dashboard, /async function editContribution/);
-  assert.match(dashboard, /Corrigir contribuição/);
+  assert.match(dashboard, /async function deleteContribution/);
+  assert.match(dashboard, /Gerenciar todas as contribuições/);
+  assert.match(dashboard, /CONTRIBUIÇÕES \(/);
   assert.match(dashboard, /name="edit_player"/);
   assert.match(dashboard, /Contribuição corrigida/);
+  assert.match(dashboard, /Contribuição excluída/);
+  assert.match(dashboard, /contributionDeleteConfirm/);
+  assert.match(dashboard, /allContributions=data\.cycles\.flatMap/);
   assert.match(dashboard, /cycleFund\(targetCycle\)<0/);
   assert.match(dashboard, /async function giveGearReward/);
   assert.match(dashboard, /async function deleteGearReward/);
@@ -107,7 +112,7 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /Confirmar exclusão/);
   assert.match(dashboard, /Reward excluído/);
   assert.match(dashboard, /Rewards recebidos/);
-  assert.match(dashboard, /exclua lançamentos incorretos no próprio cartão/);
+  assert.match(dashboard, /Abra Contribuições no cartão para ver e excluir qualquer lançamento individual/);
   assert.match(dashboard, /Reward máximo disponível/);
   assert.match(dashboard, /adminSection==="adena"/);
   assert.match(dashboard, /adminSection==="crystal"/);
@@ -122,6 +127,9 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /deliverDropAdena/);
   assert.match(theme, /\.adena-quick/);
   assert.match(theme, /\.contribution-editor/);
+  assert.match(theme, /\.contribution-records/);
+  assert.match(theme, /\.contribution-delete-confirm/);
+  assert.match(theme, /\.contribution-entry-actions/);
   assert.match(theme, /\.edit-contribution-buttons/);
   assert.match(theme, /\.gear-reward/);
   assert.match(theme, /\.reward-toggle/);
