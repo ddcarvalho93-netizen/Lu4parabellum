@@ -77,7 +77,10 @@ test("ships the class-themed crystal vault and complete movement feed", async ()
     readFile(new URL("../app/theme.css", import.meta.url), "utf8"),
   ]);
 
-  assert.match(dashboard, /COFRE DE CRISTAIS D/);
+  assert.match(dashboard, /COFRE DE CRISTAIS C & D/);
+  assert.match(dashboard, /Livro-razão de cristais C e D/);
+  assert.match(dashboard, /CRYSTAL_GRADES\.map/);
+  assert.match(dashboard, /crystalLedger\(data,"C"\)/);
   assert.match(dashboard, /SALDOS DA FORMAÇÃO/);
   assert.match(dashboard, /PLAYER_META\[p\]/);
   assert.match(dashboard, /data\.crystalPayments\.map/);
@@ -128,7 +131,10 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /async function crystallizeDropSale/);
   assert.match(dashboard, /Excluir anúncio/);
   assert.match(dashboard, /◆ Cristalizar/);
-  assert.match(dashboard, /Quantidade total de cristais D/);
+  assert.match(dashboard, /name=\{`sale_grade_/);
+  assert.match(dashboard, /Cristal C/);
+  assert.match(dashboard, /Grade do cristal/);
+  assert.match(dashboard, /Registrar drop C\/D/);
   assert.match(dashboard, /Item da loja cristalizado/);
   assert.match(dashboard, /deliverDropAdena/);
   assert.match(theme, /\.adena-quick/);
@@ -143,6 +149,9 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(theme, /\.reward-delete-confirm/);
   assert.match(theme, /\.admin-switch/);
   assert.match(theme, /\.crystal-settle/);
+  assert.match(theme, /\.crystal-grade-balances/);
+  assert.match(theme, /\.crystal-grade-row\.grade-c/);
+  assert.match(theme, /\.crystal-grade-input/);
   assert.match(theme, /\.loot-sales/);
   assert.match(theme, /\.shop-actions/);
   assert.match(theme, /\.shop-secondary-actions/);

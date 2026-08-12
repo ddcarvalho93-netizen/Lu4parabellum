@@ -1,11 +1,13 @@
 export const PLAYERS = ["Ardranes", "Doidinha", "xFonseca", "Sooul", "DeusCriolo"] as const;
 export type Player = (typeof PLAYERS)[number];
+export const CRYSTAL_GRADES = ["D", "C"] as const;
+export type CrystalGrade = (typeof CRYSTAL_GRADES)[number];
 export type Contribution = { id: string; player: Player; amount: number; at: string; note: string };
 export type GearReward = { id: string; amount: number; at: string; note: string };
 export type GearRecipient = { player: Player; received: boolean; receivedAt?: string; contributions: Contribution[]; rewards?: GearReward[] };
 export type GearCycle = { id: string; item: string; value: number; status: "active" | "complete" | "closed"; closedAt?: string; closeReason?: string; recipients: GearRecipient[] };
-export type DropEvent = { id: string; at: string; item: string; crystals: number; keeper: Player | null; note: string };
-export type CrystalPayment = { id: string; at: string; crystals: number; note: string; player?: Player };
+export type DropEvent = { id: string; at: string; item: string; crystals: number; grade?: CrystalGrade; keeper: Player | null; note: string };
+export type CrystalPayment = { id: string; at: string; crystals: number; grade?: CrystalGrade; note: string; player?: Player };
 export type DropSale = { id: string; at: string; item: string; quantity: number; unitPrice: number; status: "listed" | "sold"; soldAt?: string; note: string };
 export type DropAdenaPayment = { id: string; at: string; player: Player; adena: number; note: string };
 export type AppData = { cp: string; players: readonly Player[]; cycles: GearCycle[]; drops: DropEvent[]; crystalPayments: CrystalPayment[]; dropSales?: DropSale[]; dropAdenaPayments?: DropAdenaPayment[] };
@@ -23,10 +25,15 @@ export function normalizeInitialItem(data: AppData): AppData {
   const first = data.cycles?.[0];
   const untouchedPlaceholder = first?.item === "Set Manticore" && first.value === 500000 &&
     first.recipients.every(r => !r.received && r.contributions.length === 0);
-  if (!untouchedPlaceholder) return data;
+  const missingCrystalGrades = data.drops?.some(drop => !drop.grade) || data.crystalPayments?.some(payment => !payment.grade);
+  if (!untouchedPlaceholder && !missingCrystalGrades) return data;
   const next = structuredClone(data);
-  next.cycles[0].item = "Top Joias D";
-  next.cycles[0].value = 522000;
+  if (untouchedPlaceholder) {
+    next.cycles[0].item = "Top Joias D";
+    next.cycles[0].value = 522000;
+  }
+  next.drops.forEach(drop => { drop.grade ??= "D"; });
+  next.crystalPayments.forEach(payment => { payment.grade ??= "D"; });
   return next;
 }
 
@@ -54,9 +61,10 @@ export function rewardTotal(r: GearRecipient) { return (r.rewards ?? []).reduce(
 export function recipientBalance(r: GearRecipient, value: number) { return contributionTotal(r) - (r.received ? value : rewardTotal(r)); }
 export function cycleFund(c: GearCycle) { return c.recipients.reduce((s, r) => s + contributionTotal(r) - (r.received ? c.value : rewardTotal(r)), 0); }
 
-export function crystalLedger(data: AppData) {
+export function crystalLedger(data: AppData, grade: CrystalGrade = "D") {
   const balance = Object.fromEntries(PLAYERS.map(p => [p, 0])) as Record<Player, number>;
   for (const d of data.drops) {
+    if ((d.grade ?? "D") !== grade) continue;
     if (d.keeper) {
       const others = PLAYERS.filter(p => p !== d.keeper);
       const share = d.crystals / PLAYERS.length;
@@ -68,6 +76,7 @@ export function crystalLedger(data: AppData) {
     }
   }
   for (const payment of data.crystalPayments) {
+    if ((payment.grade ?? "D") !== grade) continue;
     if (payment.player) {
       const paid = Math.min(payment.crystals, Math.max(0, balance[payment.player]));
       balance[payment.player] -= paid;
@@ -144,13 +153,13 @@ export function validateData(data: AppData): string[] {
     if (c.status === "closed" && !c.closedAt) errors.push(`Rodada encerrada sem data em ${c.item}.`);
   });
   if ((data.cycles?.filter(c => c.status === "active").length ?? 0) > 1) errors.push("Existe mais de uma rodada ativa.");
-  data.drops?.forEach(d => { if (!d.item.trim() || !Number.isSafeInteger(d.crystals) || d.crystals <= 0) errors.push("Drop com dados inválidos."); });
+  data.drops?.forEach(d => { if (!d.item.trim() || !Number.isSafeInteger(d.crystals) || d.crystals <= 0 || !CRYSTAL_GRADES.includes(d.grade ?? "D")) errors.push("Drop com dados inválidos."); });
   const previousPayments: CrystalPayment[] = [];
   data.crystalPayments?.forEach(p => {
-    if (!Number.isFinite(p.crystals) || p.crystals <= 0 || (!p.player && !Number.isSafeInteger(p.crystals)) || !p.at) errors.push("Distribuição de cristais inválida.");
+    if (!Number.isFinite(p.crystals) || p.crystals <= 0 || (!p.player && !Number.isSafeInteger(p.crystals)) || !p.at || !CRYSTAL_GRADES.includes(p.grade ?? "D")) errors.push("Distribuição de cristais inválida.");
     if (p.player && !PLAYERS.includes(p.player)) errors.push("Jogador inválido na entrega de cristais.");
     if (p.player) {
-      const before = crystalLedger({...data, crystalPayments: previousPayments});
+      const before = crystalLedger({...data, crystalPayments: previousPayments}, p.grade ?? "D");
       if (p.crystals > before[p.player] + 0.0001) errors.push(`Entrega maior que o saldo a receber de ${p.player}.`);
     }
     previousPayments.push(p);

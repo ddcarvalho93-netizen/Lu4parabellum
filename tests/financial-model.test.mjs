@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CRYSTAL_GRADES,
   PLAYERS,
   contributionTotal,
   crystalLedger,
   cycleFund,
   dropAdenaLedger,
   initialData,
+  normalizeInitialItem,
   parseAdenaInput,
   recipientBalance,
   rewardTotal,
@@ -195,6 +197,34 @@ test("offsets simultaneous crystal keepers while preserving a zero-sum ledger", 
   assert.ok(after.Doidinha < before.Doidinha);
 });
 
+test("keeps C and D crystal balances completely separate", () => {
+  const data = clone(initialData);
+  data.drops.push(
+    {id: "d-grade", at: "2026-08-11", item: "D item", crystals: 100, grade: "D", keeper: null, note: ""},
+    {id: "c-grade", at: "2026-08-11", item: "C item", crystals: 500, grade: "C", keeper: null, note: ""},
+  );
+
+  assert.equal(crystalLedger(data, "D").Ardranes, 20);
+  assert.equal(crystalLedger(data, "C").Ardranes, 100);
+
+  data.crystalPayments.push({id: "pay-d", at: "2026-08-11", player: "Ardranes", crystals: 20, grade: "D", note: ""});
+  assert.equal(crystalLedger(data, "D").Ardranes, 0);
+  assert.equal(crystalLedger(data, "C").Ardranes, 100);
+  assert.deepEqual(validateData(data), []);
+});
+
+test("migrates existing ungraded crystal records to D without changing balances", () => {
+  const data = clone(initialData);
+  data.drops.push({id: "legacy", at: "2026-08-10", item: "Legacy D item", crystals: 100, keeper: null, note: ""});
+  const before = crystalLedger(data, "D");
+  const normalized = normalizeInitialItem(data);
+
+  assert.deepEqual([...CRYSTAL_GRADES], ["D", "C"]);
+  assert.equal(normalized.drops[0].grade, "D");
+  assert.deepEqual(crystalLedger(normalized, "D"), before);
+  assert.deepEqual(crystalLedger(normalized, "C"), Object.fromEntries(PLAYERS.map(player => [player, 0])));
+});
+
 test("records a player crystal delivery and clears only the delivered receivable", () => {
   const data = clone(initialData);
   data.drops.push({
@@ -296,13 +326,16 @@ test("moves an unsold shop listing into the crystal split", () => {
   data.dropSales = data.dropSales.filter(sale => sale.id !== listing.id);
   data.drops.push({
     id: "crystallized", at: "2026-08-11", item: `${listing.quantity}× ${listing.item}`,
-    crystals: 820, keeper: null, note: "Item retirado da loja e cristalizado para divisão da CP",
+    crystals: 820, grade: "C", keeper: null, note: "Item retirado da loja e cristalizado para divisão da CP",
   });
 
   assert.equal(data.dropSales.length, 0);
   assert.equal(data.drops[0].item, "2× Enchant Weapon D");
-  assert.deepEqual(crystalLedger(data), {
+  assert.deepEqual(crystalLedger(data, "C"), {
     Ardranes: 164, Doidinha: 164, xFonseca: 164, Sooul: 164, DeusCriolo: 164,
+  });
+  assert.deepEqual(crystalLedger(data, "D"), {
+    Ardranes: 0, Doidinha: 0, xFonseca: 0, Sooul: 0, DeusCriolo: 0,
   });
   assert.deepEqual(validateData(data), []);
 });

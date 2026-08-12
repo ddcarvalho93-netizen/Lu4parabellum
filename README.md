@@ -10,8 +10,8 @@ Formação principal: **Ardranes, Sooul e xFonseca (Tyrants)**, **DeusCriolo (Ta
 - **Correção de contribuições:** todos os lançamentos aparecem individualmente no cartão do jogador e no painel **Gerenciar todas as contribuições**. O Admin pode editar jogador, valor, data e observação ou excluir um registro com confirmação; toda mudança entra na auditoria.
 - **Reward parcial:** o Admin pode adiantar parte da Adena diretamente pelo cartão de um jogador, mesmo acima do que ele já contribuiu; cada reward pode ser excluído com confirmação. Rewards pendentes devolvem a Adena ao caixa; em item já entregue, a exclusão corrige o histórico sem alterar o custo final do item.
 - **Rodada atual editável:** o Admin pode alterar item e valor sem perder fila ou contribuições, ou encerrar a rodada e iniciar a próxima preservando a anterior no histórico.
-- **Cristais e drops:** cofre visual com os cinco jogadores e suas classes, resumo de itens/cristais, dívida proporcional aos outros quatro membros, compensação automática, entrega individual de cristais e uma linha do tempo conjunta de drops e distribuições.
-- **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda. Enquanto estiver na loja, o Admin também pode excluir o anúncio ou informar o total de cristais D e converter o lote diretamente para a divisão dos cinco.
+- **Cristais C e D:** cofre visual com contas completamente separadas por grade. Cada drop escolhe C ou D; dívida, compensação e entrega individual acontecem somente dentro da mesma grade.
+- **Venda de drops:** anúncios com item, quantidade e preço unitário editável; a Adena só entra no saldo dos cinco após a confirmação da venda. Enquanto estiver na loja, o Admin também pode excluir o anúncio ou cristalizar o lote, escolhendo grade C/D e quantidade total.
 - **Auditoria:** cada alteração salva autor, data, ação, resumo e snapshot completo.
 
 ## Modelo de dados
@@ -33,7 +33,8 @@ Na publicação, configure `ADMIN_EMAIL` com o e-mail do proprietário. Não col
 - os cinco jogadores e a ordem de turnos não podem ser alterados por lançamentos;
 - uma entrega só é confirmada para o próximo da fila e quando o caixa cobre o item;
 - um reward parcial pode ultrapassar a contribuição do jogador, mas nunca a Adena existente no caixa nem o valor restante do item para aquele jogador;
-- um item mantido credita os quatro demais em 1/5 do valor de cristais cada e debita o recebedor em 4/5;
+- um item mantido credita os quatro demais em 1/5 do valor de cristais cada e debita o recebedor em 4/5, sempre na grade C ou D informada;
+- cristais C nunca quitam dívida D e cristais D nunca quitam dívida C; registros antigos sem grade são preservados como D;
 - distribuições futuras quitam primeiro credores e compensam dívidas automaticamente;
 - conflitos entre abas retornam erro e exigem recarga.
 
@@ -53,6 +54,6 @@ Requer Node.js 22+. Instale as dependências, gere a migração com `pnpm db:gen
 7. Quando o caixa cobrir o item, confirme a entrega ao próximo da fila.
    Para avançar mantendo o histórico, use **Encerrar e iniciar próxima rodada**; a anterior deixa de aceitar alterações e a nova vira o objetivo ativo.
 8. Registre drops cristalizados ou escolha quem manteve o item.
-9. Lance lotes de cristais distribuídos; os débitos são compensados pelo sistema.
-10. Na tela **Cristais & Drops**, cada cartão positivo mostra ao Admin o botão **Confirmar entrega**. Um clique registra a entrega total, zera o “A receber” e grava a operação no histórico; não existe lançamento parcial.
-11. Para itens vendidos, crie o anúncio em **Colocar item na loja**. Ajuste o preço no cartão enquanto necessário e clique **Confirmar venda** somente quando a loja vender; o total é então dividido entre os cinco e a entrega da Adena também é confirmada pelo cartão de cada jogador. Se desistir da venda, use **Excluir anúncio**. Para cristalizar, use **Cristalizar**, digite o total de cristais D e confirme; o anúncio sai da loja e os cristais entram imediatamente na divisão.
+9. Ao registrar um drop, escolha **D-Grade** ou **C-Grade** e informe a quantidade. O sistema divide ou cria a dívida apenas nessa grade.
+10. Na tela **Cristais & Drops**, cada cartão mostra os saldos C e D separadamente. Cada saldo positivo possui sua própria **Confirmar entrega**; um clique registra a entrega total daquela grade e grava a operação no histórico.
+11. Para itens vendidos, crie o anúncio em **Colocar item na loja**. Ajuste o preço no cartão enquanto necessário e clique **Confirmar venda** somente quando a loja vender; o total é então dividido entre os cinco. Se desistir da venda, use **Excluir anúncio**. Para cristalizar, use **Cristalizar**, escolha C ou D, digite o total e confirme; o anúncio sai da loja e os cristais entram na conta da grade escolhida.
