@@ -8,6 +8,7 @@ import {
   crystalLedger,
   cycleFund,
   dropAdenaLedger,
+  dropSaleTotal,
   initialData,
   normalizeInitialItem,
   parseAdenaInput,
@@ -302,6 +303,20 @@ test("lists a drop without dividing Adena, then splits only after sale confirmat
   });
   assert.equal(dropAdenaLedger(data).Sooul, 0);
   assert.deepEqual(validateData(data), []);
+});
+
+test("always confirms a multi-item listing using quantity times unit price", () => {
+  const sale = { quantity: 2, unitPrice: 30_000 };
+  assert.equal(dropSaleTotal(sale), 60_000);
+
+  const data = clone(initialData);
+  data.dropSales.push({
+    id: "two-items", at: "2026-08-13", item: "Enchant Armor D",
+    ...sale, status: "sold", soldAt: "2026-08-13", note: "",
+  });
+  const ledger = dropAdenaLedger(data);
+  assert.equal(Object.values(ledger).reduce((sum, value) => sum + value, 0), 60_000);
+  assert.deepEqual(Object.values(ledger), [12_000, 12_000, 12_000, 12_000, 12_000]);
 });
 
 test("preserves every Adena and rotates indivisible sale remainders fairly", () => {

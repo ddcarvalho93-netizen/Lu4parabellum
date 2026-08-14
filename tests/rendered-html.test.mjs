@@ -127,6 +127,11 @@ test("keeps admin entry fast with LU4 Adena shorthand and contextual controls", 
   assert.match(dashboard, /Colocar item na loja/);
   assert.match(dashboard, /Atualizar preço/);
   assert.match(dashboard, /Confirmar venda/);
+  assert.match(dashboard, /function DropSaleForm/);
+  assert.match(dashboard, /TOTAL DO LOTE/);
+  assert.match(dashboard, /dropSaleTotal\(s\)/);
+  assert.match(theme, /\.sale-total-preview/);
+  assert.match(theme, /\.shop-total/);
   assert.match(dashboard, /async function deleteDropSale/);
   assert.match(dashboard, /async function crystallizeDropSale/);
   assert.match(dashboard, /Excluir anúncio/);

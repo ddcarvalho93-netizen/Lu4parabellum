@@ -38,6 +38,7 @@ export function normalizeInitialItem(data: AppData): AppData {
 }
 
 export function adena(n: number) { return new Intl.NumberFormat("pt-BR").format(Math.round(n)); }
+export function dropSaleTotal(sale: Pick<DropSale, "quantity" | "unitPrice">) { return sale.quantity * sale.unitPrice; }
 export function parseAdenaInput(value: unknown) {
   const raw = String(value ?? "").trim().toLowerCase().replace(/\s+/g, "");
   const suffix = raw.endsWith("kk") ? "kk" : raw.endsWith("k") ? "k" : "";
@@ -114,7 +115,7 @@ export function crystalLedger(data: AppData, grade: CrystalGrade = "D") {
 export function dropAdenaLedger(data: AppData) {
   const balance = Object.fromEntries(PLAYERS.map(p => [p, 0])) as Record<Player, number>;
   (data.dropSales ?? []).filter(sale => sale.status === "sold").forEach((sale, saleIndex) => {
-    const total = sale.quantity * sale.unitPrice;
+    const total = dropSaleTotal(sale);
     const share = Math.floor(total / PLAYERS.length);
     const remainder = total % PLAYERS.length;
     PLAYERS.forEach((player, playerIndex) => {
@@ -165,7 +166,7 @@ export function validateData(data: AppData): string[] {
     previousPayments.push(p);
   });
   data.dropSales?.forEach(s => {
-    if (!s.item.trim() || !Number.isSafeInteger(s.quantity) || s.quantity <= 0 || !Number.isSafeInteger(s.unitPrice) || s.unitPrice <= 0 || !s.at || !["listed", "sold"].includes(s.status) || (s.status === "sold" && !s.soldAt)) errors.push("Venda de drop com dados inválidos.");
+    if (!s.item.trim() || !Number.isSafeInteger(s.quantity) || s.quantity <= 0 || !Number.isSafeInteger(s.unitPrice) || s.unitPrice <= 0 || !Number.isSafeInteger(dropSaleTotal(s)) || !s.at || !["listed", "sold"].includes(s.status) || (s.status === "sold" && !s.soldAt)) errors.push("Venda de drop com dados inválidos.");
   });
   const previousAdenaPayments: DropAdenaPayment[] = [];
   data.dropAdenaPayments?.forEach(p => {
